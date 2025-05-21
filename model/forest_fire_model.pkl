@@ -1,0 +1,30 @@
+# train_model.py
+import pandas as pd
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.model_selection import train_test_split
+import joblib
+import os
+
+# Load dataset
+df = pd.read_csv("https://archive.ics.uci.edu/ml/machine-learning-databases/forest-fires/forestfires.csv")
+
+# Preprocessing
+df['month'] = pd.factorize(df['month'])[0]
+df['day'] = pd.factorize(df['day'])[0]
+df['fire'] = df['area'].apply(lambda x: 1 if x > 0 else 0)
+
+# Features and target
+X = df[['temp', 'RH', 'wind', 'rain']]
+y = df['fire']
+
+# Train/test split
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Train model
+model = RandomForestClassifier()
+model.fit(X_train, y_train)
+
+# Save model to 'model/' directory
+os.makedirs('model', exist_ok=True)
+joblib.dump(model, 'model/forest_fire_model.pkl')
+print("Model saved as model/forest_fire_model.pkl")
